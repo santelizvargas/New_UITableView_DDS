@@ -7,9 +7,11 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITableViewDelegate {
+final class ViewController: UIViewController, UITableViewDelegate {
     
-    let newTableView: UITableView = {
+    // MARK: - Make Table view
+    
+    private let newTableView: UITableView = {
        let table = UITableView()
         table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         table.translatesAutoresizingMaskIntoConstraints = false
@@ -17,21 +19,24 @@ class ViewController: UIViewController, UITableViewDelegate {
         return table
     }()
     
-    var myDataSource: UITableViewDiffableDataSource<Int, Device>!
+    private var myDataSource: UITableViewDiffableDataSource<Int, Device>!
 
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        newTableView.delegate = self
         setupNewTableView()
         setupMyDataSource()
         snapshotSave()
     }
     
-    func setupNewTableView() {
+    // MARK: - Functions
+    
+    private func setupNewTableView() {
+        
         view.addSubview(newTableView)
         newTableView.frame = view.bounds
-//        newTableView.backgroundColor = .blue
+        newTableView.delegate = self
         
         NSLayoutConstraint.activate([
             newTableView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -41,20 +46,25 @@ class ViewController: UIViewController, UITableViewDelegate {
         ])
     }
     
-    func setupMyDataSource() {
+    private func setupMyDataSource() {
+        
         myDataSource = UITableViewDiffableDataSource(tableView: newTableView, cellProvider: { tableView, indexPath, model in
+            
             let cell = self.newTableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+            
             var listContentConfiguration = UIListContentConfiguration.cell()
             listContentConfiguration.text = model.title
             listContentConfiguration.image = UIImage(systemName: model.imageName)
+            
             cell.contentConfiguration = listContentConfiguration
-
+            cell.selectionStyle = .none
+            
             return cell
 
         })
     }
     
-    func snapshotSave() {
+    private func snapshotSave() {
         var snapshot = myDataSource.snapshot()
         snapshot.appendSections([0, 1])
         snapshot.appendItems(device, toSection: 0)
